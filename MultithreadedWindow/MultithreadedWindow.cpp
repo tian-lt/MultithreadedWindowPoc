@@ -89,18 +89,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
       throw "failed to create top window 0.";
     }
 
-    static std::once_flag onceflag;
-    std::call_once(onceflag, [&] {
+    if (wid == 0) {
       childhwnd =
           CreateWindowEx(0, TEXT("ChildWndClass"), L"", WS_CHILD | WS_BORDER, 0,
-                         0, 100, 100, tophwnds[0], nullptr, hInst, nullptr);
+                         0, 100, 100, tophwnds[wid], nullptr, hInst, nullptr);
       if (!childhwnd) {
         throw "failed to create the childwindow.";
       }
 
       ShowWindow(childhwnd, SW_SHOWDEFAULT);
       UpdateWindow(childhwnd);
-    });
+    }
 
     ShowWindow(tophwnds[wid], nCmdShow);
     UpdateWindow(tophwnds[wid]);
