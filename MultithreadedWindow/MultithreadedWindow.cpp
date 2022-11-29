@@ -81,9 +81,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
               MAX_LOADSTRING);
   MyRegisterClass(hInstance);
 
-  std::once_flag onceflag;
-  auto childproc = [&] {};
-
   auto proc = [&](int wid) {
     tophwnds[wid] = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
                                   CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr,
@@ -92,6 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
       throw "failed to create top window 0.";
     }
 
+    static std::once_flag onceflag;
     std::call_once(onceflag, [&] {
       childhwnd =
           CreateWindowEx(0, TEXT("ChildWndClass"), L"", WS_CHILD | WS_BORDER, 0,
