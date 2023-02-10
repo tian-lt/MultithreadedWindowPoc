@@ -128,19 +128,38 @@ void ChildTick(ChildWindowContext* ctx) {
   ctx->color_idx = (ctx->color_idx + 1) % brush_num;
 }
 
+LRESULT CALLBACK MainSubclass(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
+                              UINT_PTR, DWORD_PTR) {
+  switch (msg) {
+    case WM_STYLECHANGING: {
+      int c = 0;
+    }
+      [[fallthrough]];
+    default:
+      return DefSubclassProc(hwnd, msg, wparam, lparam);
+  }
+}
+
 LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
     case WM_CREATE: {
       auto ctx = new MainWindowContext();
       SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ctx));
+      SetWindowSubclass(hwnd, MainSubclass, 0, 0);
       break;
     }
+    case WM_STYLECHANGING:
+      break;
     case WM_KEYDOWN:
       if (wparam == VK_SPACE) {
         auto ctx = reinterpret_cast<MainWindowContext*>(
             GetWindowLongPtr(hwnd, GWLP_USERDATA));
         ShowWindow(hwnd, ctx->maximized ? SW_RESTORE : SW_SHOWMAXIMIZED);
         ctx->maximized = !ctx->maximized;
+        auto style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style =
+            (style & WS_HSCROLL) ? (style & ~WS_HSCROLL) : style | WS_HSCROLL;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         break;
       } else if (wparam == VK_ESCAPE) {
         PostMessage(hwnd, WM_CLOSE, 0, 0);
